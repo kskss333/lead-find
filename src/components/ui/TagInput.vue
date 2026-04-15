@@ -26,13 +26,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import { nanoid } from 'nanoid' // Установите: npm install nanoid
+import { nanoid } from 'nanoid'
 
 const modelValue = defineModel()
 const props = defineProps({
   label: String,
   placeholder: String,
-  error: String // Новое свойство для отображения ошибки
+  error: String
 })
 
 const inputRef = ref(null)
@@ -45,7 +45,7 @@ const focusInput = () => {
 const addTag = () => {
   if (inputText.value.trim()) {
     const tags = inputText.value.split(/[,\s]+/).map(t => t.trim()).filter(Boolean)
-    if (tags.some(tag => !modelValue.value.includes(tag))) { // Проверяем, нет ли дубликатов
+    if (tags.some(tag => !modelValue.value.includes(tag))) {
       modelValue.value = [...modelValue.value, ...tags]
     }
     inputText.value = ''
@@ -89,7 +89,7 @@ const removeTag = (index) => {
 }
 
 .tag-input-field.has-error {
-  border-color: #e53e3e; /* Красная граница при ошибке */
+  border-color: #e53e3e;
 }
 
 .tag-item {

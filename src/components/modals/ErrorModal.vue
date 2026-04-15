@@ -2,18 +2,15 @@
   <div class="modal-overlay" @click="$emit('close')">
     <div class="modal-content" @click.stop>
       <div class="modal-header">
-        <div class="success-icon">
-          <img src="@/assets/icons/confirm.svg" alt="Успех" />
-        </div>
-        <h3>Задание отправлено!</h3>
+        <h3>⚠️ Ошибка</h3>
       </div>
 
       <div class="modal-body">
-        <p>Мы начали поиск лидов. Результаты появятся в разделе «Мои задания».</p>
+        <p>{{ message }}</p>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-primary" @click="$emit('close')">
+        <button class="btn-primary" @click="$emit('close')">
           Понятно
         </button>
       </div>
@@ -22,6 +19,12 @@
 </template>
 
 <script setup>
+defineProps({
+  message: {
+    type: String,
+    required: true
+  }
+})
 defineEmits(['close'])
 </script>
 
@@ -38,10 +41,11 @@ defineEmits(['close'])
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-content {
-  background: var(--tg-bg-color, #1e1e1e);
+  background-color: var(--tg-bg-color, #1e1e1e);
   border-radius: 16px;
   width: 90%;
   max-width: 400px;
@@ -49,35 +53,13 @@ defineEmits(['close'])
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.success-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #d4f8e8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.success-icon img {
-  width: 18px;
-  height: 18px;
-  fill: #22c55e;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header h3 {
   font-size: 16px;
   font-weight: 600;
-  color: var(--tg-text-color, #ffffff);
+  color: #f59e0b; 
   margin: 0;
 }
 
@@ -94,19 +76,26 @@ defineEmits(['close'])
 }
 
 .btn {
-  min-width: 140px;
   padding: 14px 24px;
-  border-radius: 30px;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  background: var(--tg-button-color, #2487e7);
-  color: var(--tg-button-text-color, #ffffff);
-  transition: background 0.2s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.btn:hover {
-  background: #1a75d6;
+.btn-primary {
+  background-color: var(--tg-button-color, #2487e7);
+  color: var(--tg-button-text-color, #ffffff);
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1a75d6;
 }
 </style>

@@ -4,47 +4,45 @@
       <p>Загружаем ваши задания...</p>
     </div>
 
-    <EmptyState v-else-if="tasks.length === 0" />
+    <EmptyState v-else-if="tasks.length === 0" @create-first="$emit('switchToNew')" />
 
-    <div v-else class="tasks-grid">
-      <TaskCard
-        v-for="task in tasks"
-        :key="task.id"
-        :task="task"
-        @edit="onEdit"
-        @delete="onDelete"
-        @duplicate="onDuplicate"
-      />
-    </div>
+    <TransitionGroup
+      v-else
+      name="task-list"
+      tag="ul"
+      class="tasks-grid"
+    >
+      <li :key="`wrapper-${task.id}`" v-for="task in tasks" class="task-item">
+        <TaskCard
+          :task="task"
+          @edit="onEdit"
+          @delete="onDelete"
+          @duplicate="onDuplicate"
+        />
+      </li>
+    </TransitionGroup>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useTaskStore } from '../../stores/taskStore'
 import TaskCard from './TaskCard.vue'
 import EmptyState from '../shared/EmptyState.vue'
 
 const taskStore = useTaskStore()
 
-// Загружаем задачи при монтировании
-onMounted(async () => {
-  if (taskStore.tasks.length === 0) { // Загружаем только если список пуст
-    try {
-      await taskStore.fetchTasks()
-    } catch (error) {
-      console.error('Ошибка при загрузке заданий:', error)
-      // Можно добавить уведомление пользователю
-    }
-  }
+onMounted(() => {
+  taskStore.fetchTasks()
 })
 
-const { tasks, loading } = taskStore
+const tasks = computed(() => taskStore.tasks)
+const loading = computed(() => taskStore.loading)
 
-// Заглушка для действий — пока просто лог
+defineEmits(['switchToNew'])
+
 const onEdit = (task) => {
   console.log('Редактировать задание', task.id)
-  // TODO: Открыть форму редактирования
 }
 
 const onDelete = async (task) => {
@@ -59,8 +57,7 @@ const onDelete = async (task) => {
 }
 
 const onDuplicate = (task) => {
-  console.log('Дублировать задание', task.id)
-  // TODO: Открыть форму с предзаполненными данными
+  taskStore.duplicateTask(task.id)
 }
 </script>
 
@@ -82,8 +79,36 @@ const onDuplicate = (task) => {
 }
 
 .tasks-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.task-item {
+  display: block;
+}
+
+.task-list-move,
+.task-list-enter-active,
+.task-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.task-list-enter-from {
+  opacity: 0;
+  transform: scale(0.9) translateX(20px);
+}
+
+.task-list-leave-to {
+  opacity: 0;
+  transform: scale(0.9) translateX(-20px);
+}
+
+.task-list-leave-active {
+  position: absolute;
+  width: 100%;
 }
 </style>

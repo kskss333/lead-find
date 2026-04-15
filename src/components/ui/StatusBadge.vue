@@ -9,7 +9,7 @@ import { computed } from 'vue'
 
 const props = defineProps({
   status: {
-    type: [Boolean, String], // Может быть true, false или строка типа 'pending'
+    type: [Boolean, String],
     required: true
   }
 })
@@ -18,7 +18,7 @@ const statusText = computed(() => {
   if (props.status === true) return 'Активно'
   if (props.status === false) return 'На паузе'
   if (props.status === 'pending' || props.status === null || props.status === undefined) return 'Создаём чудо...'
-  return 'Неизвестно' // На всякий случай
+  return 'Неизвестно'
 })
 
 const badgeClass = computed(() => {
@@ -41,17 +41,17 @@ const badgeClass = computed(() => {
 }
 
 .status-active {
-  background-color: #d4f8e8; /* Зелёный фон */
-  color: #22c55e; /* Зелёный текст */
+  background-color: #d4f8e8;
+  color: #22c55e;
 }
 
 .status-paused {
-  background-color: #f8f9fa; /* Серый фон */
-  color: #6b7280; /* Серый текст */
+  background-color: #f8f9fa;
+  color: #6b7280;
 }
 
 .status-pending {
-  background-color: #fffbeb; /* Жёлтый фон */
-  color: #f59e0b; /* Жёлтый текст */
+  background-color: #fffbeb;
+  color: #f59e0b;
 }
 </style>

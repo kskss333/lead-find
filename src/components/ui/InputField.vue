@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { nanoid } from 'nanoid' // Установите: npm install nanoid
+import { nanoid } from 'nanoid'
 
 const modelValue = defineModel()
 const props = defineProps({
@@ -33,10 +33,9 @@ const props = defineProps({
   type: { type: String, default: 'text' },
   multiline: Boolean,
   required: Boolean,
-  error: String // Новое свойство для отображения ошибки
+  error: String
 })
 
-// Генерируем уникальный ID для label
 const id = nanoid()
 </script>
 
@@ -71,7 +70,7 @@ const id = nanoid()
 }
 
 .input-field.has-error {
-  border-color: #e53e3e; /* Красная граница при ошибке */
+  border-color: #e53e3e;
 }
 
 .error-message {
