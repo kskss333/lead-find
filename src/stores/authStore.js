@@ -1,6 +1,7 @@
 // src/stores/authStore.js
 import { defineStore } from 'pinia'
 import apiClient from '../services/api'
+import { useTaskStore } from './taskStore' // Импортируем taskStore
 
 // Функция для эмуляции initData в браузере (временно, для тестирования)
 function getFakeInitData() {
@@ -46,6 +47,11 @@ export const useAuthStore = defineStore('auth', {
         const response = await apiClient.post('/auth', { initData })
         this.token = response.data.token
         localStorage.setItem('authToken', this.token)
+
+        // ✅ После успешного логина, включаем API в taskStore
+        const taskStore = useTaskStore();
+        taskStore.enableApi(true);
+
       } catch (error) {
         this.error = error.response?.data?.message || 'Login failed'
         console.error('Auth Error:', error)
@@ -58,6 +64,9 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null
       localStorage.removeItem('authToken')
+      // ✅ После выхода, отключаем API в taskStore
+      const taskStore = useTaskStore();
+      taskStore.enableApi(false);
     },
   },
 })

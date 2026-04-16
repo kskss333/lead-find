@@ -1,11 +1,9 @@
 // src/services/api.js
 import axios from 'axios'
 
-// Используем реальный API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.attractor.fun/api'
-
+// Используем /api как базовый путь — Vite проксирует его на https://api.attractor.fun
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: '/api', // ← Теперь не нужно указывать полный URL
 })
 
 // Interceptor для добавления токена
@@ -17,9 +15,7 @@ apiClient.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 // Interceptor для обработки ошибок

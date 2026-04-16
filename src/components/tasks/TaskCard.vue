@@ -90,32 +90,34 @@
       </div>
     </div>
   </Teleport>
-</template>
-
-<script setup>
-import { ref, reactive, computed } from 'vue'
-import { useTaskStore } from '../../stores/taskStore'
-const props = defineProps({
-  task: {
-    type: Object,
-    required: true
-  }
-})
-const emit = defineEmits(['delete'])
-const taskStore = useTaskStore()
-const showConfirm = ref(false)
-const showEdit = ref(false)
-const showToggleStatusModal = ref(false)
-const localTask = reactive({ ...props.task })
-
-// ✅ Вычисляем путь к иконке
-const statusIconPath = computed(() => {
-  return props.task.status ? '@/assets/icons/pause-circle.svg' : '@/assets/icons/play-button.png'
+  </template>
+  
+  <script setup>
+  import { ref, reactive, computed } from 'vue'
+  import { useTaskStore } from '../../stores/taskStore'
+  import pauseCircleIcon from '@/assets/icons/pause-circle.svg'
+  import playCircleIcon from '@/assets/icons/play-circle.svg'
+  const props = defineProps({
+    task: {
+  	    type: Object,
+      required: true
+  	  }
+  })
+  const emit = defineEmits(['delete'])
+  const taskStore = useTaskStore()
+  const showConfirm = ref(false)
+  const showEdit = ref(false)
+  const showToggleStatusModal = ref(false)
+  const localTask = reactive({ ...props.task })
+  
+  // ✅ Вычисляем путь к иконке
+   const statusIconPath = computed(() => {
+    return props.task.status ? pauseCircleIcon : playCircleIcon
 })
 
 // Заголовок и текст для модалки смены статуса
 const toggleStatusTitle = computed(() => {
-  return props.task.status ? 'Приостановить задание?' : 'Возобновить задание?'
+return props.task.status ? 'Приостановить задание?' : 'Возобновить задание?'
 })
 const toggleStatusMessage = computed(() => {
   return `Вы уверены, что хотите ${props.task.status ? 'приостановить' : 'возобновить'} задание?`
