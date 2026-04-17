@@ -1,4 +1,3 @@
-// src/stores/taskStore.js
 import { defineStore } from 'pinia'
 import apiClient from '../services/api'
 
@@ -9,7 +8,7 @@ export const useTaskStore = defineStore('tasks', {
     tasks: [],
     loading: false,
     error: null,
-    isApiEnabled: false, // 🔑 Главный флаг
+    isApiEnabled: false,
   }),
 
   actions: {
@@ -36,7 +35,7 @@ export const useTaskStore = defineStore('tasks', {
           const response = await apiClient.get('/tasks')
           this.tasks = response.data
         } catch (error) {
-          console.warn('⚠️ API fetch failed, fallback to localStorage')
+          console.warn('API fetch failed, fallback to localStorage')
           this.hydrateFromStorage()
         } finally {
           this.loading = false
@@ -54,7 +53,7 @@ export const useTaskStore = defineStore('tasks', {
           this.saveToStorage()
           return response.data
         } catch (error) {
-          console.warn('⚠️ API create failed, saving to localStorage')
+          console.warn('API create failed, saving to localStorage')
           const keywordsStr = Array.isArray(taskData.keywords) ? taskData.keywords.join(', ') : taskData.keywords || ''
           const newTask = {
             id: Date.now() + Math.random(),
@@ -92,7 +91,7 @@ export const useTaskStore = defineStore('tasks', {
           if (index !== -1) this.tasks[index] = response.data
           this.saveToStorage()
         } catch (error) {
-          console.warn('⚠️ API update failed, updating localStorage')
+          console.warn('API update failed, updating localStorage')
           const index = this.tasks.findIndex(t => t.id === id)
           if (index !== -1) {
             const keywordsStr = Array.isArray(taskData.keywords) ? taskData.keywords.join(', ') : taskData.keywords || ''
@@ -127,7 +126,7 @@ export const useTaskStore = defineStore('tasks', {
           this.tasks = this.tasks.filter(t => t.id !== id)
           this.saveToStorage()
         } catch (error) {
-          console.warn('⚠️ API delete failed, deleting from localStorage')
+          console.warn('API delete failed, deleting from localStorage')
           this.tasks = this.tasks.filter(t => t.id !== id)
           this.saveToStorage()
         }
@@ -158,7 +157,7 @@ export const useTaskStore = defineStore('tasks', {
           this.saveToStorage()
           return response.data
         } catch (error) {
-          console.warn('⚠️ API duplicate failed, duplicating locally')
+          console.warn('API duplicate failed, duplicating locally')
           const originalIndex = this.tasks.findIndex(t => t.id === originalId)
           if (originalIndex === -1) return
           const originalTask = this.tasks[originalIndex]

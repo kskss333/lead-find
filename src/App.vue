@@ -10,48 +10,20 @@ import { onMounted } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useTaskStore } from './stores/taskStore'
 import HomeView from './views/HomeView.vue'
-import { initTelegram } from './services/telegram'
+import { applyTelegramTheme } from './services/telegram'
 
 const authStore = useAuthStore()
 const taskStore = useTaskStore()
 
-onMounted(async () => {
-  // ✅ Инициализируем Telegram SDK (применит тему, эмулирует в браузере)
-  initTelegram()
+onMounted(() => {
+  applyTelegramTheme()
 
-  // Проверяем, есть ли токен в localStorage
   if (authStore.token) {
-    console.log('✅ Токен найден в localStorage')
     taskStore.enableApi(true)
-    await taskStore.fetchTasks()
+    taskStore.fetchTasks().catch(console.error)
   } else {
-    // Если токена нет, пробуем авторизоваться
-    const tg = window.Telegram?.WebApp
-    if (tg && tg.initData) {
-      console.log('✅ initData получен:', tg.initData.substring(0, 50) + '...')
-      try {
-        await authStore.login(tg.initData)
-        taskStore.enableApi(true)
-        await taskStore.fetchTasks()
-      } catch (error) {
-        console.error('❌ Ошибка авторизации:', error)
-        // В dev-режиме попробуем фейк
-        if (import.meta.env.MODE === 'development') {
-          try {
-            await authStore.login()
-            taskStore.enableApi(true)
-            await taskStore.fetchTasks()
-          } catch (e) {
-            console.error('❌ Фейковая авторизация тоже не удалась:', e)
-          }
-        }
-      }
-    } else {
-      console.warn('❌ initData не получен. Работаем в режиме localStorage.')
-      // В браузере — используем localStorage
-      taskStore.enableApi(false)
-      await taskStore.fetchTasks()
-    }
+    taskStore.enableApi(false)
+    taskStore.fetchTasks().catch(console.error)
   }
 })
 </script>
