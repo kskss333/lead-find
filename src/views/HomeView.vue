@@ -1,5 +1,5 @@
 <template>
-  <div class="home-view">
+  <div class="app-container home-view">
     <TabBar v-model:active-tab="activeTab" />
     <div class="tab-content">
       <Transition name="slide-fade" mode="out-in">
