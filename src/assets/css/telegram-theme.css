@@ -11,3 +11,15 @@
   --tg-section-header-text-color: #000000;
   --tg-subtitle-text-color: #8c8c8c;
 }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tg-bg-color: #1c1c1e;
+    --tg-text-color: #ffffff;
+    --tg-hint-color: #aaaaaa;
+    --tg-link-color: #5dade2;
+    --tg-button-color: #5dade2;
+    --tg-button-text-color: #ffffff;
+    --tg-secondary-bg-color: #2c2c2e;
+    --tg-section-bg-color: #2c2c2e;
+  }
+}

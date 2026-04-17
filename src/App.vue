@@ -10,44 +10,47 @@ import { onMounted } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useTaskStore } from './stores/taskStore'
 import HomeView from './views/HomeView.vue'
+import { initTelegram } from './services/telegram'
 
-const authStore = useAuthStore();
-const taskStore = useTaskStore();
+const authStore = useAuthStore()
+const taskStore = useTaskStore()
 
 onMounted(async () => {
+  // ✅ Инициализируем Telegram SDK (применит тему, эмулирует в браузере)
+  initTelegram()
+
   // Проверяем, есть ли токен в localStorage
   if (authStore.token) {
-    // Если токен есть, считаем, что пользователь уже авторизован
-    // Включаем API в taskStore
-    taskStore.enableApi(true);
-    // Подгружаем задачи с API
-    await taskStore.fetchTasks();
+    console.log('✅ Токен найден в localStorage')
+    taskStore.enableApi(true)
+    await taskStore.fetchTasks()
   } else {
     // Если токена нет, пробуем авторизоваться
-    // Получаем initData из Telegram SDK (window.Telegram.WebApp)
-    const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram?.WebApp
     if (tg && tg.initData) {
+      console.log('✅ initData получен:', tg.initData.substring(0, 50) + '...')
       try {
-        // Вызываем login, передав initData
-        await authStore.login(tg.initData);
-        // После успешного логина, API уже включён в authStore
-        // Подгружаем задачи с API
-        await taskStore.fetchTasks();
+        await authStore.login(tg.initData)
+        taskStore.enableApi(true)
+        await taskStore.fetchTasks()
       } catch (error) {
-        console.error('Auto-login failed:', error);
-        // Оставляем в состоянии без API или показать ошибку пользователю
-        // authStore.error содержит ошибку
+        console.error('❌ Ошибка авторизации:', error)
+        // В dev-режиме попробуем фейк
+        if (import.meta.env.MODE === 'development') {
+          try {
+            await authStore.login()
+            taskStore.enableApi(true)
+            await taskStore.fetchTasks()
+          } catch (e) {
+            console.error('❌ Фейковая авторизация тоже не удалась:', e)
+          }
+        }
       }
     } else {
-      // SDK не доступен или initData нет (режим разработки в браузере)
-      // authStore.login() может использовать фейковый initData в dev режиме
-      try {
-        await authStore.login(); // Это вызовет getFakeInitData в dev режиме
-        taskStore.enableApi(true);
-        await taskStore.fetchTasks();
-      } catch (error) {
-        console.error('Auto-login failed (no SDK/initData):', error);
-      }
+      console.warn('❌ initData не получен. Работаем в режиме localStorage.')
+      // В браузере — используем localStorage
+      taskStore.enableApi(false)
+      await taskStore.fetchTasks()
     }
   }
 })
