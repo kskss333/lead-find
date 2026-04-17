@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@fontsource/roboto": "^5.0.8",
-    "@twa-dev/sdk": "^8.0.2",
     "axios": "^1.6.7",
     "pinia": "^2.1.7",
     "primevue": "^3.49.1",

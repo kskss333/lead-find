@@ -10,13 +10,13 @@ import { onMounted } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useTaskStore } from './stores/taskStore'
 import HomeView from './views/HomeView.vue'
-import { applyTelegramTheme } from './services/telegram'
+import { useTelegramTheme } from './utils/useTelegramTheme'
 
 const authStore = useAuthStore()
 const taskStore = useTaskStore()
 
 onMounted(() => {
-  applyTelegramTheme()
+  useTelegramTheme()
 
   if (authStore.token) {
     taskStore.enableApi(true)
