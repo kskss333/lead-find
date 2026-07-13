@@ -20,7 +20,7 @@
       <button class="action-btn" title="Изменить статус" @click="showStatusModal = true">
         <img :src="statusIcon" class="action-icon" alt="Статус" />
       </button>
-      <button class="action-btn" title="Редактировать" @click="openEditModal">
+      <button class="action-btn" title="Редактировать" @click="$emit('edit', task)">
         <img src="@/assets/icons/pencil.svg" class="action-icon" alt="Редактировать" />
       </button>
       <button class="action-btn" title="Копировать" @click="duplicate">
@@ -48,13 +48,6 @@
       @confirm="toggleStatus"
       @cancel="showStatusModal = false"
     />
-
-    <EditModal
-      v-if="showEditModal"
-      :task="task"
-      @save="saveEdit"
-      @close="showEditModal = false"
-    />
   </div>
 </template>
 
@@ -62,7 +55,6 @@
 import { ref, computed } from 'vue'
 import { useTaskStore } from '../../stores/taskStore'
 import ConfirmModal from '../modals/ConfirmModal.vue'
-import EditModal from '../modals/EditModal.vue'
 import pauseCircleIcon from '@/assets/icons/pause-circle.svg'
 import playCircleIcon from '@/assets/icons/play-circle.svg'
 
@@ -73,10 +65,11 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['delete', 'duplicate', 'edit'])
+
 const taskStore = useTaskStore()
 const showDeleteModal = ref(false)
 const showStatusModal = ref(false)
-const showEditModal = ref(false)
 
 const statusIcon = computed(() => {
   return props.task.status ? pauseCircleIcon : playCircleIcon
@@ -93,6 +86,7 @@ const statusModalMessage = computed(() => {
 const removeTask = () => {
   taskStore.deleteTask(props.task.id)
   showDeleteModal.value = false
+  emit('delete', props.task)
 }
 
 const toggleStatus = () => {
@@ -102,15 +96,7 @@ const toggleStatus = () => {
 
 const duplicate = () => {
   taskStore.duplicateTask(props.task.id)
-}
-
-const openEditModal = () => {
-  showEditModal.value = true
-}
-
-const saveEdit = (updatedData) => {
-  taskStore.updateTask(props.task.id, updatedData)
-  showEditModal.value = false
+  emit('duplicate', props.task)
 }
 </script>
 
