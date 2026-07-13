@@ -1,36 +1,62 @@
 <template>
   <div class="task-card">
-    <div class="card-description">
-      {{ task.description || '—' }}
-    </div>
-    <div class="card-meta">
-      <img src="@/assets/icons/marker.svg" class="meta-icon" alt="Регион" />
-      <span class="meta-text">{{ task.region || '—' }}</span>
-    </div>
-    <div class="card-meta">
-      <img src="@/assets/icons/tags.svg" class="meta-icon" alt="Теги" />
-      <span class="meta-text">Теги: {{ task.keywords || '—' }}</span>
-    </div>
-    <div class="card-stats">
-      <span class="stat-text">Найдено:</span>
-      <span class="stat-number">{{ task.foundLeads || 0 }}</span>
-    </div>
+    <!-- Режим просмотра -->
+    <template v-if="!isEditing">
+      <div class="card-description">
+        {{ task.description || '—' }}
+      </div>
+      <div class="card-meta">
+        <img src="@/assets/icons/marker.svg" class="meta-icon" alt="Регион" />
+        <span class="meta-text">{{ task.region || '—' }}</span>
+      </div>
+      <div class="card-meta">
+        <img src="@/assets/icons/tags.svg" class="meta-icon" alt="Теги" />
+        <span class="meta-text">Теги: {{ task.keywords || '—' }}</span>
+      </div>
+      <div class="card-stats">
+        <span class="stat-text">Найдено:</span>
+        <span class="stat-number">{{ task.foundLeads || 0 }}</span>
+      </div>
 
-    <div class="card-actions">
-      <button class="action-btn" title="Изменить статус" @click="showStatusModal = true">
-        <img :src="statusIcon" class="action-icon" alt="Статус" />
-      </button>
-      <button class="action-btn" title="Редактировать" @click="$emit('edit', task)">
-        <img src="@/assets/icons/pencil.svg" class="action-icon" alt="Редактировать" />
-      </button>
-      <button class="action-btn" title="Копировать" @click="duplicate">
-        <img src="@/assets/icons/copy-alt.svg" class="action-icon" alt="Копировать" />
-      </button>
-      <button class="action-btn" title="Удалить" @click="showDeleteModal = true">
-        <img src="@/assets/icons/trash.svg" class="action-icon" alt="Удалить" />
-      </button>
-    </div>
+      <div class="card-actions">
+        <button class="action-btn" title="Изменить статус" @click="showStatusModal = true">
+          <img :src="statusIcon" class="action-icon" alt="Статус" />
+        </button>
+        <button class="action-btn" title="Редактировать" @click="startEditing">
+          <img src="@/assets/icons/pencil.svg" class="action-icon" alt="Редактировать" />
+        </button>
+        <button class="action-btn" title="Копировать" @click="duplicate">
+          <img src="@/assets/icons/copy-alt.svg" class="action-icon" alt="Копировать" />
+        </button>
+        <button class="action-btn" title="Удалить" @click="showDeleteModal = true">
+          <img src="@/assets/icons/trash.svg" class="action-icon" alt="Удалить" />
+        </button>
+      </div>
+    </template>
 
+    <!-- Режим редактирования -->
+    <template v-else>
+      <div class="edit-form">
+        <div class="input-group">
+          <label class="input-label">Описание</label>
+          <textarea v-model="editData.description" class="input-field" rows="3" />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Регион</label>
+          <input v-model="editData.region" class="input-field" />
+        </div>
+        <div class="input-group">
+          <label class="input-label">Ключевые слова</label>
+          <input v-model="editData.keywords" class="input-field" />
+        </div>
+        <div class="edit-actions">
+          <button class="btn-secondary" @click="cancelEditing">Отмена</button>
+          <button class="btn-primary" @click="saveEditing">Сохранить</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Модалки -->
     <ConfirmModal
       v-if="showDeleteModal"
       title="Удалить задание?"
@@ -52,7 +78,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useTaskStore } from '../../stores/taskStore'
 import ConfirmModal from '../modals/ConfirmModal.vue'
 import pauseCircleIcon from '@/assets/icons/pause-circle.svg'
@@ -65,11 +91,16 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['delete', 'duplicate', 'edit'])
-
 const taskStore = useTaskStore()
 const showDeleteModal = ref(false)
 const showStatusModal = ref(false)
+const isEditing = ref(false)
+
+const editData = reactive({
+  description: props.task.description || '',
+  region: props.task.region || '',
+  keywords: props.task.keywords || ''
+})
 
 const statusIcon = computed(() => {
   return props.task.status ? pauseCircleIcon : playCircleIcon
@@ -83,10 +114,29 @@ const statusModalMessage = computed(() => {
   return `Вы уверены, что хотите ${props.task.status ? 'приостановить' : 'возобновить'} задание?`
 })
 
+const startEditing = () => {
+  editData.description = props.task.description || ''
+  editData.region = props.task.region || ''
+  editData.keywords = props.task.keywords || ''
+  isEditing.value = true
+}
+
+const cancelEditing = () => {
+  isEditing.value = false
+}
+
+const saveEditing = () => {
+  taskStore.updateTask(props.task.id, {
+    description: editData.description,
+    region: editData.region,
+    keywords: editData.keywords
+  })
+  isEditing.value = false
+}
+
 const removeTask = () => {
   taskStore.deleteTask(props.task.id)
   showDeleteModal.value = false
-  emit('delete', props.task)
 }
 
 const toggleStatus = () => {
@@ -96,7 +146,6 @@ const toggleStatus = () => {
 
 const duplicate = () => {
   taskStore.duplicateTask(props.task.id)
-  emit('duplicate', props.task)
 }
 </script>
 
@@ -189,5 +238,76 @@ const duplicate = () => {
 .action-icon {
   width: 18px;
   height: 18px;
+}
+
+/* Стили для редактирования */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tg-hint-color);
+}
+
+.input-field {
+  background-color: var(--tg-bg-color);
+  border: 1px solid var(--tg-hint-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--tg-text-color);
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--tg-link-color);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  background-color: var(--tg-button-color);
+  color: var(--tg-button-text-color);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--tg-text-color);
+  border: 1px solid var(--tg-hint-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-secondary:hover {
+  background-color: var(--tg-secondary-bg-color);
 }
 </style>
